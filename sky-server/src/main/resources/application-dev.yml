@@ -10,3 +10,6 @@ sky:
     host: localhost
     port: 6379
     database: 0
+  wechat:
+    appid: wxf83109f54a043dfe
+    secert: e96f8879545b1ee5d80784818e39eb7e
