@@ -49,4 +49,11 @@ public class ShoppingCartController {
         return Result.success();
     }
 
+    @PostMapping("/sub")
+    @ApiOperation("清空购物车特定数据")
+    public Result sub(@RequestBody ShoppingCartDTO shoppingCartDTO){
+        shoppingCartService.sub(shoppingCartDTO);
+        return Result.success();
+    }
+
 }
