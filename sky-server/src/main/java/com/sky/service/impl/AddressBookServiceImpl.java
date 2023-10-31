@@ -32,7 +32,8 @@ public class AddressBookServiceImpl implements AddressBookService {
      * @param addressBook
      */
     public void save(AddressBook addressBook) {
-        addressBook.setUserId(BaseContext.getCurrentId());
+        //addressBook.setUserId(BaseContext.getCurrentId());
+        addressBook.setUserId(4L);
         addressBook.setIsDefault(0);
         addressBookMapper.insert(addressBook);
     }
