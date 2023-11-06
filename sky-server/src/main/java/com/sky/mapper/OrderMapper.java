@@ -10,6 +10,7 @@ import org.springframework.core.annotation.Order;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface OrderMapper {
@@ -49,4 +50,10 @@ public interface OrderMapper {
 
     @Select("select * from orders where status = #{status} and order_time < #{ordertime}")
     List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime ordertime);
+
+    /**
+     * 根据动态条件拼接SQL
+     * @return
+     */
+    Double sumByMap(Map map);
 }
