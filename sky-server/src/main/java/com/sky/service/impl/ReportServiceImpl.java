@@ -3,8 +3,11 @@ package com.sky.service.impl;
 import com.alibaba.druid.util.StringUtils;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,9 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     private OrderMapper orderMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     public TurnoverReportVO getTurnoverStatistic(LocalDate begin, LocalDate end) {
         //存放开始到结束的每一天日期
@@ -43,7 +49,7 @@ public class ReportServiceImpl implements ReportService {
             //select sum(amount) from orders where order_time > ? and order_time < ? and status = 5
             //由于前端传至是只有年月日的，时分秒需要后端获取，这里的MIN和MAX可以获取一天的最大&最小值，也就是00:00:00和23:59:59
             LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
-            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
             Map map = new HashMap<>();
             map.put("begin", beginTime);
             map.put("end", endTime);
@@ -60,6 +66,42 @@ public class ReportServiceImpl implements ReportService {
                 .build();
 
         return result;
+    }
+
+
+    @Override
+    public UserReportVO getUserStatistic(LocalDate begin, LocalDate end) {
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while(begin.equals(end)){
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        //select count(id) from user where creata_time < ? and create_time > ?
+        List<Integer> newUserList = new ArrayList<>();
+        //select count(id) from user where create_time > ?
+        List<Integer> totalUserList = new ArrayList<>();
+        for(LocalDate date:dateList){
+            LocalDateTime beginTime = LocalDateTime.of(date, LocalTime.MIN);
+            LocalDateTime endTime = LocalDateTime.of(date, LocalTime.MAX);
+            Map map = new HashMap<>();
+            map.put("end", endTime);
+            map.put("status", Orders.COMPLETED);
+
+            //总用户
+            Integer total = userMapper.countByMap(map);
+            totalUserList.add(total);
+
+            //新增用户
+            map.put("begin", beginTime);
+            Integer add = userMapper.countByMap(map);
+            newUserList.add(add);
+        }
+        return UserReportVO.builder()
+                .dateList(org.apache.commons.lang3.StringUtils.join(dateList, ","))
+                .newUserList(org.apache.commons.lang3.StringUtils.join(newUserList, ","))
+                .totalUserList(org.apache.commons.lang3.StringUtils.join(totalUserList, ","))
+                .build();
     }
 
 }
